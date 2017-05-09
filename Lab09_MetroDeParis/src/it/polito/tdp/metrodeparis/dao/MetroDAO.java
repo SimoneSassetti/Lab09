@@ -35,7 +35,6 @@ public class MetroDAO {
 			e.printStackTrace();
 			throw new RuntimeException("Errore di connessione al Database.");
 		}
-
 		return fermate;
 	}
 }
