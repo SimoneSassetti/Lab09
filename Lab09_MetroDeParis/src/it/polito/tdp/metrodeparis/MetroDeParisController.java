@@ -4,7 +4,7 @@ import java.net.URL;
 import java.util.*;
 import java.util.ResourceBundle;
 
-import it.polito.tdp.metrodeparis.model.FermataConLinea;
+import it.polito.tdp.metrodeparis.model.Fermata;
 import it.polito.tdp.metrodeparis.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -21,10 +21,10 @@ public class MetroDeParisController {
     private URL location;
 
     @FXML
-    private ComboBox<FermataConLinea> boxPartenza;
+    private ComboBox<Fermata> boxPartenza;
 
     @FXML
-    private ComboBox<FermataConLinea> boxArrivo;
+    private ComboBox<Fermata> boxArrivo;
 
     @FXML
     private Button btnPercorso;
@@ -37,8 +37,8 @@ public class MetroDeParisController {
     	txtResult.clear();
     	model.getGrafo();
     	
-    	FermataConLinea p=boxPartenza.getValue();
-    	FermataConLinea a=boxArrivo.getValue();
+    	Fermata p=boxPartenza.getValue();
+    	Fermata a=boxArrivo.getValue();
     	if(a==null || p==null){
     		txtResult.appendText("Selezione fermate errate.\n");
     		return;
@@ -58,7 +58,7 @@ public class MetroDeParisController {
     Model model;
 	public void setModel(Model model) {
 		this.model=model;
-		List<FermataConLinea> fermate=model.getTutteFermate();
+		List<Fermata> fermate=model.getTutteFermateSemplici();
 		boxPartenza.getItems().addAll(fermate);
 		boxArrivo.getItems().addAll(fermate);
 	}

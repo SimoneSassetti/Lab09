@@ -1,9 +1,9 @@
 package it.polito.tdp.metrodeparis.model;
 
 import java.util.*;
-import org.jgrapht.WeightedGraph;
+import org.jgrapht.*;
 import org.jgrapht.alg.DijkstraShortestPath;
-import org.jgrapht.graph.WeightedMultigraph;
+import org.jgrapht.graph.*;
 import com.javadocmd.simplelatlng.LatLngTool;
 import com.javadocmd.simplelatlng.util.LengthUnit;
 
@@ -11,10 +11,19 @@ import it.polito.tdp.metrodeparis.dao.MetroDAO;
 
 public class Model {
 	
+	private List<Fermata> fermateSemplici;
 	private List<FermataConLinea> listaFermate;
 	private WeightedGraph<FermataConLinea, Tratta> grafo;
 	private List<FermataPair> listaArchi;
 	private List<Linea> listaLinee;
+	
+	public List<Fermata> getTutteFermateSemplici() {
+		MetroDAO dao=new MetroDAO();
+		if(fermateSemplici==null){
+			fermateSemplici=dao.getAllFermateSemplici();
+		}
+		return fermateSemplici;
+	}
 	
 	public List<FermataConLinea> getTutteFermate(){
 		MetroDAO dao=new MetroDAO();
@@ -32,7 +41,7 @@ public class Model {
 	}
 	
 	private void creaGrafo() {
-		grafo = new  WeightedMultigraph<FermataConLinea, Tratta>(Tratta.class);
+		grafo = new  DirectedWeightedMultigraph<FermataConLinea, Tratta>(Tratta.class);
 		
 		for(FermataConLinea f: listaFermate){
 			grafo.addVertex(f);
@@ -46,6 +55,15 @@ public class Model {
 			if(t!=null){
 				t.setLinea(this.cercaLinea(a.getIdLinea()));
 				grafo.setEdgeWeight(t, calcolaPeso(t.getLinea(),a.getPartenza(),a.getArrivo()));
+			}
+		}
+		for(FermataConLinea f1: listaFermate){
+			for(FermataConLinea f2: listaFermate){
+				if(f1.getIdFermata()==f2.getIdFermata() && f1.getIdLinea()!=f2.getIdLinea()){
+					Tratta t=grafo.addEdge(f1, f2);
+					t.setLinea(this.cercaLinea(f2.getIdLinea()));
+					grafo.setEdgeWeight(t, this.cercaLinea(f2.getIdLinea()).getIntervallo());
+				}
 			}
 		}
 	}
@@ -64,7 +82,10 @@ public class Model {
 		return null;
 	}
 
-	public String creaPercorso(FermataConLinea p, FermataConLinea a) {
+	public String creaPercorso(Fermata partenza, Fermata arrivo) {
+		
+		List<FermataConLinea> partenze=this.cercaFermateSpecifiche(partenza);
+		List<FermataConLinea> arrivi=this.cercaFermateSpecifiche(arrivo);
 		
 		DijkstraShortestPath<FermataConLinea,Tratta> percorsoMinimo= new DijkstraShortestPath<FermataConLinea,Tratta>(grafo, p,a);
 		List<Tratta> lista=percorsoMinimo.getPathEdgeList();
@@ -88,4 +109,16 @@ public class Model {
 		
 		return percorso;
 	}
+
+	private List<FermataConLinea> cercaFermateSpecifiche(Fermata fermata) {
+		List<FermataConLinea> temp=new ArrayList<FermataConLinea>();
+		for(FermataConLinea f: listaFermate){
+			if(f.getIdFermata()==fermata.getIdFermata()){
+				temp.add(f);
+			}
+		}
+		return temp;
+	}
+
+	
 }

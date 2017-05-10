@@ -9,12 +9,38 @@ import java.util.List;
 
 import com.javadocmd.simplelatlng.LatLng;
 
+import it.polito.tdp.metrodeparis.model.Fermata;
 import it.polito.tdp.metrodeparis.model.FermataConLinea;
 import it.polito.tdp.metrodeparis.model.FermataPair;
 import it.polito.tdp.metrodeparis.model.Linea;
 
 public class MetroDAO {
+	
+	public List<Fermata> getAllFermateSemplici() {
 
+		final String sql = "SELECT id_fermata, nome, coordx, coordy FROM fermata ORDER BY nome ASC";
+		List<Fermata> fermate = new ArrayList<Fermata>();
+
+		try {
+			Connection conn = DBConnect.getInstance().getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			ResultSet rs = st.executeQuery();
+
+			while (rs.next()) {
+				Fermata f = new Fermata(rs.getInt("id_Fermata"), rs.getString("nome"), new LatLng(rs.getDouble("coordx"), rs.getDouble("coordy")));
+				fermate.add(f);
+			}
+
+			st.close();
+			conn.close();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new RuntimeException("Errore di connessione al Database.");
+		}
+		return fermate;
+	}
+	
 	public List<FermataConLinea> getAllFermate() {
 
 		final String sql = "SELECT id_fermata, nome, coordx, coordy, id_linea FROM fermata, connessione "+
