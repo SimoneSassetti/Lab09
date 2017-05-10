@@ -34,7 +34,17 @@ public class MetroDeParisController {
 
     @FXML
     void doPercorso(ActionEvent event) {
-
+    	txtResult.clear();
+    	model.getGrafo();
+    	
+    	Fermata p=boxPartenza.getValue();
+    	Fermata a=boxArrivo.getValue();
+    	if(a==null || p==null){
+    		txtResult.appendText("Selezione fermate errate.\n");
+    		return;
+    	}
+    	txtResult.appendText("Percorso trovato:\n");
+    	txtResult.appendText(model.creaPercorso(p,a));
     }
 
     @FXML
