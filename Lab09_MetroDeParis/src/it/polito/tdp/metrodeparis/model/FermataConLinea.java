@@ -2,19 +2,21 @@ package it.polito.tdp.metrodeparis.model;
 
 import com.javadocmd.simplelatlng.LatLng;
 
-public class Fermata {
+public class FermataConLinea {
 
 	private int idFermata;
 	private String nome;
 	private LatLng coords;
-
-	public Fermata(int idFermata, String nome, LatLng coords) {
+	private int idLinea;
+	
+	public FermataConLinea(int idFermata, String nome, LatLng coords, int idLinea) {
+		super();
 		this.idFermata = idFermata;
 		this.nome = nome;
 		this.coords = coords;
+		this.idLinea = idLinea;
 	}
-	
-	public Fermata(int idFermata) {
+	public FermataConLinea(int idFermata) {
 		this.idFermata = idFermata;
 	}
 
@@ -55,7 +57,7 @@ public class Fermata {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Fermata other = (Fermata) obj;
+		FermataConLinea other = (FermataConLinea) obj;
 		if (idFermata != other.idFermata)
 			return false;
 		return true;

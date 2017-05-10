@@ -1,27 +1,27 @@
 package it.polito.tdp.metrodeparis.model;
 
 public class FermataPair {
-	private Fermata partenza;
-	private Fermata arrivo;
+	private FermataConLinea partenza;
+	private FermataConLinea arrivo;
 	private int idLinea;
 	
-	public FermataPair(Fermata partenza, Fermata arrivo, int idLinea) {
+	public FermataPair(FermataConLinea partenza, FermataConLinea arrivo, int idLinea) {
 		super();
 		this.partenza = partenza;
 		this.arrivo = arrivo;
 		this.idLinea = idLinea;
 	}
 
-	public Fermata getPartenza() {
+	public FermataConLinea getPartenza() {
 		return partenza;
 	}
-	public void setF1(Fermata f1) {
+	public void setF1(FermataConLinea f1) {
 		this.partenza = f1;
 	}
-	public Fermata getArrivo() {
+	public FermataConLinea getArrivo() {
 		return arrivo;
 	}
-	public void setF2(Fermata f2) {
+	public void setF2(FermataConLinea f2) {
 		this.arrivo = f2;
 	}
 

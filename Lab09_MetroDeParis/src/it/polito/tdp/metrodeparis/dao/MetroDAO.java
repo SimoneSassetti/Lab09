@@ -9,16 +9,19 @@ import java.util.List;
 
 import com.javadocmd.simplelatlng.LatLng;
 
-import it.polito.tdp.metrodeparis.model.Fermata;
+import it.polito.tdp.metrodeparis.model.FermataConLinea;
 import it.polito.tdp.metrodeparis.model.FermataPair;
 import it.polito.tdp.metrodeparis.model.Linea;
 
 public class MetroDAO {
 
-	public List<Fermata> getAllFermate() {
+	public List<FermataConLinea> getAllFermate() {
 
-		final String sql = "SELECT id_fermata, nome, coordx, coordy FROM fermata ORDER BY nome ASC";
-		List<Fermata> fermate = new ArrayList<Fermata>();
+		final String sql = "SELECT id_fermata, nome, coordx, coordy, id_linea FROM fermata, connessione "+
+				"WHERE connessione.id_stazP=fermata.id_fermata OR connessione.id_stazA=fermata.id_fermata "+
+				"GROUP BY id_linea "+
+				"ORDER BY nome ASC;";
+		List<FermataConLinea> fermate = new ArrayList<FermataConLinea>();
 
 		try {
 			Connection conn = DBConnect.getInstance().getConnection();
@@ -26,7 +29,7 @@ public class MetroDAO {
 			ResultSet rs = st.executeQuery();
 
 			while (rs.next()) {
-				Fermata f = new Fermata(rs.getInt("id_Fermata"), rs.getString("nome"), new LatLng(rs.getDouble("coordx"), rs.getDouble("coordy")));
+				FermataConLinea f = new FermataConLinea(rs.getInt("id_Fermata"), rs.getString("nome"), new LatLng(rs.getDouble("coordx"), rs.getDouble("coordy")),rs.getInt("id_linea"));
 				fermate.add(f);
 			}
 
@@ -54,8 +57,8 @@ public class MetroDAO {
 			ResultSet rs = st.executeQuery();
 
 			while (rs.next()) {
-				Fermata partenza= new Fermata(rs.getInt("idStazPartenza"), rs.getString("nomePartenza"), new LatLng(rs.getDouble("coordXPartenza"), rs.getDouble("coordYPartenza")));
-				Fermata arrivo =new Fermata(rs.getInt("idStazArrivo"), rs.getString("nomeArrivo"), new LatLng(rs.getDouble("coordXArrivo"), rs.getDouble("coordYArrivo")));
+				FermataConLinea partenza= new FermataConLinea(rs.getInt("idStazPartenza"), rs.getString("nomePartenza"), new LatLng(rs.getDouble("coordXPartenza"), rs.getDouble("coordYPartenza")),rs.getInt("id_linea"));
+				FermataConLinea arrivo =new FermataConLinea(rs.getInt("idStazArrivo"), rs.getString("nomeArrivo"), new LatLng(rs.getDouble("coordXArrivo"), rs.getDouble("coordYArrivo")),rs.getInt("id_linea"));
 				FermataPair f= new FermataPair(partenza, arrivo, rs.getInt("id_linea"));
 				lista.add(f);
 			}

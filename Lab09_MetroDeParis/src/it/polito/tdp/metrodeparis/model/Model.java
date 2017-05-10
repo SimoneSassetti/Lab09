@@ -11,12 +11,12 @@ import it.polito.tdp.metrodeparis.dao.MetroDAO;
 
 public class Model {
 	
-	private List<Fermata> listaFermate;
-	private WeightedGraph<Fermata, Tratta> grafo;
+	private List<FermataConLinea> listaFermate;
+	private WeightedGraph<FermataConLinea, Tratta> grafo;
 	private List<FermataPair> listaArchi;
 	private List<Linea> listaLinee;
 	
-	public List<Fermata> getTutteFermate(){
+	public List<FermataConLinea> getTutteFermate(){
 		MetroDAO dao=new MetroDAO();
 		if(listaFermate==null){
 			listaFermate=dao.getAllFermate();
@@ -24,7 +24,7 @@ public class Model {
 		return listaFermate;
 	}
 	
-	public WeightedGraph<Fermata, Tratta> getGrafo(){
+	public WeightedGraph<FermataConLinea, Tratta> getGrafo(){
 		if(grafo==null){
 			this.creaGrafo();
 		}
@@ -32,9 +32,9 @@ public class Model {
 	}
 	
 	private void creaGrafo() {
-		grafo = new  WeightedMultigraph<Fermata, Tratta>(Tratta.class);
+		grafo = new  WeightedMultigraph<FermataConLinea, Tratta>(Tratta.class);
 		
-		for(Fermata f: listaFermate){
+		for(FermataConLinea f: listaFermate){
 			grafo.addVertex(f);
 		}
 		MetroDAO dao= new MetroDAO();
@@ -50,7 +50,7 @@ public class Model {
 		}
 	}
 
-	private double calcolaPeso(Linea linea, Fermata partenza, Fermata arrivo) {
+	private double calcolaPeso(Linea linea, FermataConLinea partenza, FermataConLinea arrivo) {
 		double dis= LatLngTool.distance(partenza.getCoords(), arrivo.getCoords(), LengthUnit.KILOMETER);
 		return (dis/linea.getVelocita());
 	}
@@ -64,22 +64,22 @@ public class Model {
 		return null;
 	}
 
-	public String creaPercorso(Fermata p, Fermata a) {
+	public String creaPercorso(FermataConLinea p, FermataConLinea a) {
 		
-		DijkstraShortestPath<Fermata,Tratta> percorsoMinimo= new DijkstraShortestPath<Fermata,Tratta>(grafo, p,a);
+		DijkstraShortestPath<FermataConLinea,Tratta> percorsoMinimo= new DijkstraShortestPath<FermataConLinea,Tratta>(grafo, p,a);
 		List<Tratta> lista=percorsoMinimo.getPathEdgeList();
 		
 		//uso un set cosi ho il controllo dei duplicati
-		Set<Fermata> setFermate=new LinkedHashSet<Fermata>();
+		Set<FermataConLinea> setFermate=new LinkedHashSet<FermataConLinea>();
 		for(Tratta t: lista){
-			Fermata f1=grafo.getEdgeSource(t);
-			Fermata f2=grafo.getEdgeTarget(t);
+			FermataConLinea f1=grafo.getEdgeSource(t);
+			FermataConLinea f2=grafo.getEdgeTarget(t);
 			setFermate.add(f1);
 			setFermate.add(f2);
 		}
 		
 		String percorso="";
-		Iterator<Fermata> it=setFermate.iterator();		
+		Iterator<FermataConLinea> it=setFermate.iterator();		
 		while(it.hasNext()){
 			percorso+=it.next().getNome()+"\n";
 		}
