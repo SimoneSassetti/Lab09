@@ -43,9 +43,8 @@ public class MetroDAO {
 	
 	public List<FermataConLinea> getAllFermate() {
 
-		final String sql = "SELECT id_fermata, nome, coordx, coordy, id_linea FROM fermata, connessione "+
+		final String sql = "SELECT DISTINCT id_fermata, nome, coordx, coordy, id_linea FROM fermata, connessione "+
 				"WHERE connessione.id_stazP=fermata.id_fermata OR connessione.id_stazA=fermata.id_fermata "+
-				"GROUP BY id_linea "+
 				"ORDER BY nome ASC;";
 		List<FermataConLinea> fermate = new ArrayList<FermataConLinea>();
 
@@ -109,7 +108,7 @@ public class MetroDAO {
 			ResultSet rs = st.executeQuery();
 
 			while (rs.next()) {
-				Linea l=new Linea(rs.getInt("id_linea"),rs.getString("nome"),rs.getDouble("velocita"),rs.getDouble("intervallo"));
+				Linea l=new Linea(rs.getInt("id_linea"),rs.getString("nome"),rs.getDouble("velocita"),(rs.getDouble("intervallo")/60.0));
 				linee.add(l);
 			}
 

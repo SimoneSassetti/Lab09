@@ -40,7 +40,7 @@ public class MetroDeParisController {
     	Fermata p=boxPartenza.getValue();
     	Fermata a=boxArrivo.getValue();
     	if(a==null || p==null){
-    		txtResult.appendText("Selezione fermate errate.\n");
+    		txtResult.appendText("Selezione fermate errata.\n");
     		return;
     	}
     	txtResult.appendText("Percorso trovato:\n");

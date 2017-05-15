@@ -13,7 +13,7 @@ public class Model {
 	
 	private List<Fermata> fermateSemplici;
 	private List<FermataConLinea> listaFermate;
-	private WeightedGraph<FermataConLinea, Tratta> grafo;
+	private WeightedGraph<FermataConLinea, Tratta> grafo=null;
 	private List<FermataPair> listaArchi;
 	private List<Linea> listaLinee;
 	
@@ -37,19 +37,20 @@ public class Model {
 		if(grafo==null){
 			this.creaGrafo();
 		}
+		System.out.println(grafo);
 		return grafo;
 	}
 	
 	private void creaGrafo() {
-		grafo = new  DirectedWeightedMultigraph<FermataConLinea, Tratta>(Tratta.class);
-		
-		for(FermataConLinea f: listaFermate){
-			grafo.addVertex(f);
-		}
 		MetroDAO dao= new MetroDAO();
+		grafo = new  DirectedWeightedMultigraph<FermataConLinea, Tratta>(Tratta.class);
+		this.getTutteFermate();
+//		for(FermataConLinea f: listaFermate){
+//			grafo.addVertex(f);
+//		}
+		Graphs.addAllVertices(grafo, listaFermate);
 		listaArchi=dao.getCoppieAdiacenti();
 		listaLinee=dao.getLinee();
-		
 		for(FermataPair a: listaArchi){
 			Tratta t=grafo.addEdge(a.getPartenza(), a.getArrivo());
 			if(t!=null){
@@ -86,27 +87,44 @@ public class Model {
 		
 		List<FermataConLinea> partenze=this.cercaFermateSpecifiche(partenza);
 		List<FermataConLinea> arrivi=this.cercaFermateSpecifiche(arrivo);
+		Set<FermataConLinea> setFermate=null;
+		double tempo=10000000.0;
 		
-		DijkstraShortestPath<FermataConLinea,Tratta> percorsoMinimo= new DijkstraShortestPath<FermataConLinea,Tratta>(grafo, p,a);
-		List<Tratta> lista=percorsoMinimo.getPathEdgeList();
-		
-		//uso un set cosi ho il controllo dei duplicati
-		Set<FermataConLinea> setFermate=new LinkedHashSet<FermataConLinea>();
-		for(Tratta t: lista){
-			FermataConLinea f1=grafo.getEdgeSource(t);
-			FermataConLinea f2=grafo.getEdgeTarget(t);
-			setFermate.add(f1);
-			setFermate.add(f2);
+		for(FermataConLinea p: partenze){
+			for(FermataConLinea a: arrivi){
+				DijkstraShortestPath<FermataConLinea,Tratta> percorsoMinimo=new DijkstraShortestPath<FermataConLinea,Tratta>(grafo,p,a);
+				double t=percorsoMinimo.getPathLength()*60.0;//Cosi è in minuti
+				if(t<tempo){
+					List<Tratta> lista=percorsoMinimo.getPathEdgeList();
+					setFermate=new LinkedHashSet<FermataConLinea>();
+					for(Tratta tratta:lista){
+						FermataConLinea f1=grafo.getEdgeSource(tratta);
+						FermataConLinea f2=grafo.getEdgeTarget(tratta);
+						setFermate.add(f1);
+						setFermate.add(f2);
+					}
+					tempo=t;
+				}
+			}
 		}
-		
 		String percorso="";
-		Iterator<FermataConLinea> it=setFermate.iterator();		
+		Iterator<FermataConLinea> it=setFermate.iterator();
+		int lineaPrec=0;
+		int step=0;
 		while(it.hasNext()){
-			percorso+=it.next().getNome()+"\n";
+			FermataConLinea f=it.next();
+			if(step==0){
+				percorso+="Prendo Linea: "+f.getIdLinea()+"\n";
+				lineaPrec=f.getIdLinea();
+			}
+			else if(f.getIdLinea()==lineaPrec){
+				percorso+=f.getNome()+" - ";
+			}else{
+				percorso+="\nPrendo Linea: "+f.getIdLinea()+"\n";
+			}
+			step++;
+			lineaPrec=f.getIdLinea();
 		}
-		double temp=percorsoMinimo.getPathLength()*3600.0+(lista.size()-2)*30.0;
-		percorso+="\nTempo di percorrenza: "+temp/60+" minuti.";
-		
 		return percorso;
 	}
 
@@ -119,6 +137,4 @@ public class Model {
 		}
 		return temp;
 	}
-
-	
 }
